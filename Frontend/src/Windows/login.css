@@ -1,0 +1,333 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
+ 
+:root {
+  --bg:         #0D0F14;
+  --surface:    #151820;
+  --surface2:   #1c2030;
+  --teal:       #00C9A7;
+  --teal-dim:   rgba(0, 201, 167, 0.12);
+  --teal-glow:  rgba(0, 201, 167, 0.25);
+  --amber:      #F5A623;
+  --text:       #E8EAF0;
+  --muted:      #6B7280;
+  --border:     rgba(255, 255, 255, 0.06);
+  --radius:     14px;
+}
+ 
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+ 
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+}
+ 
+/* ── Page layout ── */
+.pageBody {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0,201,167,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 80% 80%, rgba(245,166,35,0.04) 0%, transparent 70%),
+    var(--bg);
+}
+ 
+.loginContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: min(900px, 96vw);
+  min-height: 560px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+ 
+/* ── Left side ── */
+.leftSide {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 40px,
+      rgba(0,201,167,0.025) 40px,
+      rgba(0,201,167,0.025) 41px
+    ),
+    linear-gradient(160deg, #111520 0%, #0a0d12 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 56px 48px;
+  position: relative;
+  overflow: hidden;
+}
+ 
+.leftSide::before {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  left: -80px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,201,167,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+ 
+/* Graph lines decoration */
+.leftSide::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 120px;
+  transform: translateY(-50%);
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(0,201,167,0.06) 40%, transparent 100%);
+  pointer-events: none;
+}
+ 
+.logo {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+ 
+.logo span {
+  color: var(--teal);
+}
+ 
+.tagline {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.6;
+  max-width: 240px;
+  position: relative;
+  z-index: 1;
+}
+ 
+/* Fake chart bars */
+.chart-decoration {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-top: 48px;
+  height: 80px;
+  position: relative;
+  z-index: 1;
+}
+ 
+.bar {
+  width: 12px;
+  border-radius: 4px 4px 0 0;
+  background: var(--teal-dim);
+  border: 1px solid rgba(0,201,167,0.2);
+  transition: background 0.3s;
+}
+ 
+.bar.active {
+  background: var(--teal);
+  border-color: var(--teal);
+  box-shadow: 0 0 12px var(--teal-glow);
+}
+ 
+/* ── Right side / form ── */
+.rightSide-form {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 56px 48px;
+  position: relative;
+}
+ 
+.rightSide-form h2 {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  animation: fadeUp 0.6s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+.form-subtitle {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 36px;
+  animation: fadeUp 0.6s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+/* ── Inputs ── */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.6s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+.input-wrapper {
+  position: relative;
+}
+ 
+.input-wrapper label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+ 
+.input-wrapper input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 13px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.925rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+ 
+.input-wrapper input::placeholder {
+  color: #3a4050;
+}
+ 
+.input-wrapper input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-dim);
+}
+ 
+/* ── Button ── */
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--teal);
+  color: #0a0d10;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  letter-spacing: 0.01em;
+  animation: fadeUp 0.6s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px var(--teal-glow);
+}
+ 
+.btn-primary:active {
+  transform: translateY(0);
+  opacity: 1;
+}
+ 
+/* ── Signup link ── */
+.signup {
+  margin-top: 24px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  text-align: center;
+  animation: fadeUp 0.6s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+.signup a {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+ 
+.signup a:hover {
+  opacity: 0.75;
+}
+ 
+/* ── Modal ── */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease both;
+}
+
+.mensaje {
+  font-size: 0.825rem;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+ 
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+ 
+.modal-box p {
+  font-size: 1rem;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+ 
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .loginContainer {
+    grid-template-columns: 1fr;
+  }
+  .leftSide {
+    padding: 40px 32px 32px;
+    min-height: 180px;
+  }
+  .chart-decoration { display: none; }
+  .rightSide-form {
+    padding: 40px 32px;
+  }
+}
