@@ -26,6 +26,11 @@ function Home() {
     const [showEmailForm, setShowEmailForm] = useState(false);
     const [emailInput, setEmailInput] = useState("");
     const [appPasswordInput, setAppPasswordInput] = useState("");
+    const [emailConnected, setEmailConnected] = useState(false);
+
+    const [selectedAlert, setSelectedAlert] = useState(null);
+    const [providerName, setProviderName] = useState("");
+    const [selectedAccountForProvider, setSelectedAccountForProvider] = useState("");
 
     const [alerts, setAlerts] = useState([]);
 
@@ -35,6 +40,12 @@ function Home() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     });
 
+    const fetchEmailStatus = () => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/emailStatus`, authHeader())
+            .then(res => setEmailConnected(res.data.connected))
+            .catch(err => console.error(err));
+    };
+
     const fetchAccounts = () => {
         axios.get(`${import.meta.env.VITE_API_URL}/home/accounts`, authHeader())
             .then(res => {
@@ -42,6 +53,37 @@ function Home() {
                 setName(res.data.name);
             })
             .catch(err => console.error(err));
+    };
+
+    const handleIgnore = async (id_alerta) => {
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL}/home/ignoreAlert`, 
+                { id_alerta }, authHeader());
+            fetchAlerts();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleRegisterProvider = async () => {
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL}/home/resolveAlert`, {
+                id_alerta: selectedAlert.id_alerta,
+                id_correo: selectedAlert.id_correo,
+                name: providerName,
+                email_identifier: selectedAlert.remitente,
+                id_account: selectedAccountForProvider
+            }, authHeader());
+            setSelectedAlert(null);
+            setProviderName("");
+            setSelectedAccountForProvider("");
+            fetchAlerts();
+            fetchProviders();
+            fetchEmails();
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data || "Error al registrar proveedor");
+        }
     };
 
     const fetchAlerts = () => {
@@ -84,7 +126,9 @@ function Home() {
                 app_password: appPasswordInput
             }, authHeader());
             setShowEmailForm(false);
+            setAppPasswordInput("");
             fetchEmails();
+            fetchEmailStatus();
         } catch (err) {
             console.error(err);
             alert(err.response?.data || "Error al conectar correo");
@@ -116,6 +160,7 @@ function Home() {
         fetchStats();
         fetchProviders();
         fetchEmails();
+        fetchEmailStatus();
     }, []);
 
     useEffect(() => {
@@ -217,17 +262,34 @@ function Home() {
                 {activeSection === "emails" && (
                     <>
                         <h2>Correos</h2>
-                        <button className="btn-primary" onClick={() => setShowEmailForm(true)}>
-                            Conectar correo
-                        </button>
+                        {!emailConnected && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '8px' }}>
+                                <button className="btn-secondary" onClick={() => setShowEmailForm(true)}>
+                                    Conectar correo
+                                </button>
+                                <a 
+                                    href="https://myaccount.google.com/apppasswords" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ fontSize: '0.8rem', color: 'var(--teal)', textAlign: 'center' }}
+                                >
+                                    ¿Cómo obtengo mi App Password?
+                                </a>
+                            </div>
+                        )}
                         <div className="emails-list">
                             {emails.filter(e => e.proveedor).length === 0 && <p>No hay correos de proveedores registrados.</p>}
                             {emails.filter(e => e.proveedor).map((e) => (
-                                <div key={e.id_correo} className="email-card">
-                                    <p className="email-subject">{e.asunto}</p>
-                                    <p className="email-sender">{e.remitente}</p>
-                                    <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()}</p>
-                                    <span className="provider-badge">{e.proveedor}</span>
+                                <div key={e.id_correo} className="email-card known">
+                                    <div className="email-card-left">
+                                        <span className="email-provider-badge">{e.proveedor}</span>
+                                        <p className="email-subject">{e.asunto}</p>
+                                        <p className="email-sender">{e.remitente}</p>
+                                    </div>
+                                    <div className="email-card-right">
+                                        <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()}</p>
+                                        {e.monto && <p className="email-amount">₡{Number(e.monto).toLocaleString()}</p>}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -241,10 +303,20 @@ function Home() {
                             {alerts.length === 0 && <p>No hay alertas pendientes.</p>}
                             {alerts.map((a) => (
                                 <div key={a.id_alerta} className="email-card alert">
-                                    <p className="email-subject">{a.asunto}</p>
-                                    <p className="email-sender">{a.remitente}</p>
-                                    <p className="email-date">{new Date(a.fecha_correo).toLocaleDateString()}</p>
-                                    <span className="alert-badge">⚠ Proveedor desconocido</span>
+                                    <div className="email-card-left">
+                                        <span className="alert-badge">⚠ Proveedor desconocido</span>
+                                        <p className="email-subject">{a.asunto}</p>
+                                        <p className="email-sender">{a.remitente}</p>
+                                        <p className="email-date">{new Date(a.fecha_correo).toLocaleDateString()}</p>
+                                    </div>
+                                    <div className="email-card-right">
+                                        <button className="btn-teal-sm" onClick={() => setSelectedAlert(a)}>
+                                            Registrar
+                                        </button>
+                                        <button className="btn-muted-sm" onClick={() => handleIgnore(a.id_alerta)}>
+                                            Ignorar
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -303,6 +375,39 @@ function Home() {
                         </div>
                         <button className="btn-primary" onClick={connectEmail}>
                             Conectar
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {selectedAlert && (
+                <div className="account" onClick={() => setSelectedAlert(null)}>
+                    <div className="account-form" onClick={(e) => e.stopPropagation()}>
+                        <p style={{ color: 'var(--muted)', fontSize: '0.8rem', margin: 0 }}>
+                            {selectedAlert.remitente}
+                        </p>
+                        <div className="input-wrapper">
+                            <label>Nombre del proveedor</label>
+                            <input
+                                type="text"
+                                placeholder="Ej: Netflix, Banco Nacional..."
+                                value={providerName}
+                                onChange={(e) => setProviderName(e.target.value)}
+                            />
+                        </div>
+                        <select
+                            value={selectedAccountForProvider}
+                            onChange={(e) => setSelectedAccountForProvider(e.target.value)}
+                        >
+                            <option value="">Seleccionar cuenta</option>
+                            {accounts.map((acc) => (
+                                <option key={acc.id_account} value={acc.id_account}>
+                                    {acc.account_name}
+                                </option>
+                            ))}
+                        </select>
+                        <button className="btn-primary" onClick={handleRegisterProvider}>
+                            Registrar proveedor
                         </button>
                     </div>
                 </div>

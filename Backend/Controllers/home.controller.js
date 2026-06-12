@@ -206,4 +206,66 @@ const getAlerts = (req, res) => {
     });
 };
 
-module.exports = { getAccounts, getTypes, getCurrencies, createAccount, getStats, getProviders, saveEmailCredential, getEmails, getAlerts };
+const getEmailStatus = (req, res) => {
+    const userId = req.user.id;
+    db.query(
+        'SELECT id_credential FROM email_credential WHERE id_user = ?',
+        [userId],
+        (err, result) => {
+            if (err) return res.status(500).send("Error");
+            res.json({ connected: result.length > 0 });
+        }
+    );
+};
+
+const resolveAlert = (req, res) => {
+    const userId = req.user.id;
+    const { id_alerta, id_correo, name, email_identifier, id_account } = req.body;
+
+    if (!name || !email_identifier || !id_account) {
+        return res.status(400).send("Faltan datos");
+    }
+
+    db.query(
+        'INSERT INTO provider (id_user, name, email_identifier, id_account) VALUES (?, ?, ?, ?)',
+        [userId, name, email_identifier, id_account],
+        (err, result) => {
+            if (err) return res.status(500).send("Error al crear proveedor");
+            const id_provider = result.insertId;
+
+            db.query(
+                'UPDATE correo SET id_provider = ? WHERE remitente = ? AND id_user = ?',
+                [id_provider, email_identifier, userId],
+                (err) => {
+                    if (err) return res.status(500).send("Error al actualizar correos");
+
+                    db.query(
+                        `UPDATE alerta a
+                        JOIN correo c ON c.id_correo = a.id_correo
+                        SET a.resuelta = 1
+                        WHERE c.remitente = ? AND a.id_user = ?`,
+                        [email_identifier, userId],
+                        (err) => {
+                            if (err) return res.status(500).send("Error al resolver alertas");
+                            res.send("Proveedor creado y alertas resueltas");
+                        }
+                    );
+                }
+            );
+        }
+    );
+};
+
+const ignoreAlert = (req, res) => {
+    const { id_alerta } = req.body;
+    db.query(
+        'UPDATE alerta SET resuelta = 1 WHERE id_alerta = ?',
+        [id_alerta],
+        (err) => {
+            if (err) return res.status(500).send("Error");
+            res.send("Alerta ignorada");
+        }
+    );
+};
+
+module.exports = { getAccounts, getEmailStatus, getTypes, getCurrencies, createAccount, getStats, getProviders, saveEmailCredential, getEmails, getAlerts, resolveAlert, ignoreAlert };

@@ -6,9 +6,9 @@ import "./AccountInfo.css";
 function AccountInfo() {
     const { id } = useParams();
     const navigate = useNavigate();
-
     const [account, setAccount] = useState(null);
     const [providers, setProviders] = useState([]);
+    const [emails, setEmails] = useState([]);
 
     const authHeader = () => ({
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -21,29 +21,30 @@ function AccountInfo() {
                 setProviders(res.data.providers);
             })
             .catch(err => console.error(err));
+
+        axios.get(`${import.meta.env.VITE_API_URL}/account/${id}/emails`, authHeader())
+            .then(res => setEmails(res.data))
+            .catch(err => {
+                console.error("ERROR EMAILS:", err.response?.data || err.message);
+            });
     }, [id]);
 
     if (!account) return <p className="loading-msg">Cargando...</p>;
 
     return (
         <div className="AccountInf">
-
             <button className="back-btn" onClick={() => navigate(-1)}>
                 ← Volver
             </button>
-
             <div className="account-header">
                 <p className="account-type">{account.type_name}</p>
                 <h2>{account.account_name}</h2>
             </div>
-
             <div className="balance-container">
                 <p className="balance-label">Balance</p>
                 <h1>{Number(account.balance).toLocaleString()} <span>{account.iso}</span></h1>
             </div>
-
             <h3 className="providers-title">Proveedores asociados</h3>
-
             <div className="providers-list">
                 {providers.length === 0 ? (
                     <p className="empty-msg">Aún no hay proveedores asociados a esta cuenta.</p>
@@ -61,7 +62,26 @@ function AccountInfo() {
                     ))
                 )}
             </div>
-
+            <h3 className="providers-title">Correos recientes</h3>
+            <div className="emails-list-account">
+                {emails.length === 0 ? (
+                    <p className="empty-msg">No hay correos asociados a esta cuenta.</p>
+                ) : (
+                    emails.map((e) => (
+                        <div key={e.id_correo} className="email-card known">
+                            <div className="email-card-left">
+                                <span className="email-provider-badge">{e.proveedor}</span>
+                                <p className="email-subject">{e.asunto}</p>
+                                <p className="email-sender">{e.remitente}</p>
+                            </div>
+                            <div className="email-card-right">
+                                <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()}</p>
+                                {e.monto && <p className="email-amount">₡{Number(e.monto).toLocaleString()}</p>}
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
         </div>
     );
 }

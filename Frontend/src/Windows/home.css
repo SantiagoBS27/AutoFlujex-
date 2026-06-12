@@ -275,3 +275,149 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.emails-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.email-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.email-card.known {
+    border-left: 3px solid var(--teal);
+}
+
+.email-card.alert {
+    border-left: 3px solid var(--amber);
+}
+
+.email-card-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.email-card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 100px;
+}
+
+.email-provider-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.email-subject {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    margin: 0;
+}
+
+.email-sender {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0;
+}
+
+.email-date {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0;
+}
+
+.email-amount {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--teal);
+    margin: 0;
+}
+
+.alert-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--amber);
+    background: rgba(245, 166, 35, 0.1);
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.provider-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--teal);
+    background: var(--teal-dim);
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--teal);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid rgba(0,201,167,0.25);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--teal-dim);
+}
+
+.btn-teal-sm {
+    padding: 7px 14px;
+    background: var(--teal-dim);
+    color: var(--teal);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(0,201,167,0.25);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-teal-sm:hover {
+    background: var(--teal-glow);
+}
+
+.btn-muted-sm {
+    padding: 7px 14px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.btn-muted-sm:hover {
+    background: var(--surface2);
+    color: var(--text);
+}

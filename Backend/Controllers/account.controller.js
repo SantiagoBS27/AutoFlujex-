@@ -48,4 +48,27 @@ const getAccountDetail = (req, res) => {
     });
 };
 
-module.exports = { getAccountDetail };
+const getAccountEmails = (req, res) => {
+    const userId = req.user.id;
+    const accountId = req.params.id;
+    const sql = `
+        SELECT 
+            c.id_correo,
+            c.asunto,
+            c.remitente,
+            c.fecha_correo,
+            c.monto,
+            p.name AS proveedor
+        FROM correo c
+        JOIN provider p ON p.id_provider = c.id_provider
+        WHERE p.id_account = ?
+        AND p.id_user = ?
+        ORDER BY c.fecha_correo DESC
+    `;
+    db.query(sql, [accountId, userId], (err, result) => {
+        if (err) return res.status(500).send("Error");
+        res.json(result);
+    });
+};
+
+module.exports = { getAccountDetail, getAccountEmails };
