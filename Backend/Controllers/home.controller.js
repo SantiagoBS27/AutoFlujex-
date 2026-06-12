@@ -181,4 +181,29 @@ const getEmails = (req, res) => {
     });
 };
 
-module.exports = { getAccounts, getTypes, getCurrencies, createAccount, getStats, getProviders, saveEmailCredential, getEmails };
+const getAlerts = (req, res) => {
+    const userId = req.user.id;
+    const sql = `
+        SELECT 
+            a.id_alerta,
+            a.descripcion,
+            a.fecha_generacion,
+            a.resuelta,
+            c.id_correo,
+            c.asunto,
+            c.remitente,
+            c.fecha_correo,
+            ta.nombre AS tipo
+        FROM alerta a
+        JOIN correo c ON c.id_correo = a.id_correo
+        JOIN tipo_alerta ta ON ta.id_tipo_alerta = a.id_tipo_alerta
+        WHERE a.id_user = ? AND a.resuelta = 0
+        ORDER BY a.fecha_generacion DESC
+    `;
+    db.query(sql, [userId], (err, result) => {
+        if (err) return res.status(500).send("Error");
+        res.json(result);
+    });
+};
+
+module.exports = { getAccounts, getTypes, getCurrencies, createAccount, getStats, getProviders, saveEmailCredential, getEmails, getAlerts };

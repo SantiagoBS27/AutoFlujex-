@@ -27,6 +27,8 @@ function Home() {
     const [emailInput, setEmailInput] = useState("");
     const [appPasswordInput, setAppPasswordInput] = useState("");
 
+    const [alerts, setAlerts] = useState([]);
+
     const navigate = useNavigate();
 
     const authHeader = () => ({
@@ -39,6 +41,12 @@ function Home() {
                 setAccounts(res.data.accounts);
                 setName(res.data.name);
             })
+            .catch(err => console.error(err));
+    };
+
+    const fetchAlerts = () => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/alerts`, authHeader())
+            .then(res => setAlerts(res.data))
             .catch(err => console.error(err));
     };
 
@@ -134,6 +142,7 @@ function Home() {
                 fetchAccounts={fetchAccounts}
                 fetchProviders={fetchProviders}
                 fetchEmails={fetchEmails}
+                fetchAlerts={fetchAlerts}
             />
 
             <button
@@ -212,16 +221,30 @@ function Home() {
                             Conectar correo
                         </button>
                         <div className="emails-list">
-                            {emails.length === 0 && <p>No hay correos registrados.</p>}
-                            {emails.map((e) => (
-                                <div key={e.id_correo} className={`email-card ${e.id_alerta && !e.resuelta ? "alert" : ""}`}>
+                            {emails.filter(e => e.proveedor).length === 0 && <p>No hay correos de proveedores registrados.</p>}
+                            {emails.filter(e => e.proveedor).map((e) => (
+                                <div key={e.id_correo} className="email-card">
                                     <p className="email-subject">{e.asunto}</p>
                                     <p className="email-sender">{e.remitente}</p>
                                     <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()}</p>
-                                    {e.id_alerta && !e.resuelta && (
-                                        <span className="alert-badge">⚠ Proveedor desconocido</span>
-                                    )}
-                                    {e.proveedor && <span className="provider-badge">{e.proveedor}</span>}
+                                    <span className="provider-badge">{e.proveedor}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+
+                {activeSection === "alerts" && (
+                    <>
+                        <h2>Alertas</h2>
+                        <div className="emails-list">
+                            {alerts.length === 0 && <p>No hay alertas pendientes.</p>}
+                            {alerts.map((a) => (
+                                <div key={a.id_alerta} className="email-card alert">
+                                    <p className="email-subject">{a.asunto}</p>
+                                    <p className="email-sender">{a.remitente}</p>
+                                    <p className="email-date">{new Date(a.fecha_correo).toLocaleDateString()}</p>
+                                    <span className="alert-badge">⚠ Proveedor desconocido</span>
                                 </div>
                             ))}
                         </div>

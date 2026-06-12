@@ -8,7 +8,8 @@ function Sidebar({
     setShowAccountForm,
     fetchAccounts,
     fetchProviders,
-    fetchEmails
+    fetchEmails,
+    fetchAlerts
 }) {
 
     return (
@@ -58,6 +59,17 @@ function Sidebar({
                         }}
                     >
                         Correos
+                    </button>
+
+                    <button
+                        className={`sidebar-btn ${activeSection === "alerts" ? "active" : ""}`}
+                        onClick={() => {
+                            setActiveSection("alerts");
+                            fetchAlerts();
+                            setShowSidebar(false);
+                        }}
+                    >
+                        Alertas
                     </button>
                 </nav>
 
