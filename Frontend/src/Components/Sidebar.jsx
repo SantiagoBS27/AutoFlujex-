@@ -39,17 +39,6 @@ function Sidebar({
                     </button>
 
                     <button
-                        className={`sidebar-btn ${activeSection === "accounts" ? "active" : ""}`}
-                        onClick={() => {
-                            setActiveSection("accounts");
-                            fetchAccounts();
-                            setShowSidebar(false);
-                        }}
-                    >
-                        Cuentas
-                    </button>
-
-                    <button
                         className={`sidebar-btn ${activeSection === "providers" ? "active" : ""}`}
                         onClick={() => {
                             setActiveSection("providers");

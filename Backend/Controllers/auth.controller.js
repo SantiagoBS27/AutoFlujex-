@@ -100,8 +100,6 @@ const signup = (req, res) => {
                             { name: "Cine", type: 3 },
                             { name: "Entretenimiento", type: 3 },
                             { name: "Comida", type: 3 },
-                            { name: "Luz", type: 3 },
-                            { name: "Agua", type: 3 }
                         ];
                         defaultAccounts.forEach(acc => {
                             const sql = `

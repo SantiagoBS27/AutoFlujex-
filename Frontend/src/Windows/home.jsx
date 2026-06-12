@@ -1,6 +1,9 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-
+import AccountCard from "../Components/AccountCard";
+import Sidebar from "../Components/SideBar";
+import "./Home.css";
 
 function Home() {
     const [accounts, setAccounts] = useState([]);
@@ -13,23 +16,85 @@ function Home() {
     const [showSidebar, setShowSidebar] = useState(false);
     const [showAccountForm, setShowAccountForm] = useState(false);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
+    const [accountName, setAccountName] = useState("");
+    const [currencies, setCurrencies] = useState([]);
+    const [types, setTypes] = useState([]);
+    const [selectedCurrency, setSelectedCurrency] = useState("");
+    const [selectedType, setSelectedType] = useState("");
+    const [stats, setStats] = useState({ gasto_mes: 0, transacciones_mes: 0, total_providers: 0 });
 
-        axios.get(`${import.meta.env.VITE_API_URL}/home/accounts`, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
+    const navigate = useNavigate();
+
+    const authHeader = () => ({
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+
+    const fetchAccounts = () => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/accounts`, authHeader())
             .then(res => {
                 setAccounts(res.data.accounts);
                 setName(res.data.name);
             })
             .catch(err => console.error(err));
+    };
+
+    const fetchStats = () => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/stats`, authHeader())
+            .then(res => setStats(res.data))
+            .catch(err => console.error(err));
+    };
+
+    const fetchProviders = () => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/providers`, authHeader())
+            .then(res => setProviders(res.data))
+            .catch(err => console.error(err));
+    };
+
+    const fetchEmails = () => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/emails`, authHeader())
+            .then(res => setEmails(res.data))
+            .catch(err => console.error(err));
+    };
+
+    const createAccount = async () => {
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL}/home/createAccount`, {
+                accountName,
+                currencyId: selectedCurrency,
+                typeId: selectedType
+            }, authHeader());
+
+            setShowAccountForm(false);
+            setAccountName("");
+            setSelectedCurrency("");
+            setSelectedType("");
+            fetchAccounts();
+
+        } catch (error) {
+            console.error(error);
+            alert(error.response?.data || "Error al crear la cuenta");
+        }
+    };
+
+    useEffect(() => {
+        fetchAccounts();
+        fetchStats();
     }, []);
 
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/currencies`)
+            .then(res => setCurrencies(res.data))
+            .catch(err => console.error(err));
+    }, []);
+
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_API_URL}/home/types`)
+            .then(res => setTypes(res.data))
+            .catch(err => console.error(err));
+    }, []);
 
     return (
-        <div className="home-container">
-            <h1>Bienvenido, {name}</h1>
+        <div className="dashboard">
 
             <Sidebar
                 showSidebar={showSidebar}
@@ -42,8 +107,37 @@ function Home() {
                 fetchEmails={fetchEmails}
             />
 
-            {activeSection === "accounts" && (
+            <button
+                className="menu-btn"
+                onClick={() => setShowSidebar(true)}
+            >
+                ☰
+            </button>
+
+            <div className="main-content">
+
+                <h1>Hola, {name}!!</h1>
+
+                {activeSection === "home" && (
                     <>
+
+                        <div className="stats-grid">
+                            <div className="stat-card">
+                                <p className="stat-label">Gasto este mes</p>
+                                <p className="stat-value">₡{Number(stats.gasto_mes).toLocaleString()}</p>
+                            </div>
+                            <div className="stat-card">
+                                <p className="stat-label">Transacciones</p>
+                                <p className="stat-value">{stats.transacciones_mes}</p>
+                                <p className="stat-sub">este mes</p>
+                            </div>
+                            <div className="stat-card">
+                                <p className="stat-label">Proveedores</p>
+                                <p className="stat-value teal">{stats.total_providers}</p>
+                                <p className="stat-sub">registrados</p>
+                            </div>
+                        </div>
+
                         <h2>Cuentas</h2>
 
                         <div className="accounts-grid">
@@ -55,6 +149,7 @@ function Home() {
                                     balance={acc.balance}
                                     iso={acc.iso}
                                     type={acc.type_name}
+                                    providerCount={acc.provider_count}
                                     onClick={() => navigate(`/account/${acc.id_account}`)}
                                 />
                             ))}
@@ -63,6 +158,60 @@ function Home() {
                     </>
                 )}
 
+                {activeSection === "providers" && (
+                    <>
+                        <h2>Proveedores</h2>
+                        {/* lista de proveedores aquí */}
+                    </>
+                )}
+
+                {activeSection === "emails" && (
+                    <>
+                        <h2>Correos</h2>
+                        {/* lista de correos / alertas aquí */}
+                    </>
+                )}
+
+            </div>
+
+            {showAccountForm && (
+                <div className="account"
+                    onClick={() => setShowAccountForm(false)}>
+                    <div className="account-form"
+                        onClick={(e) => e.stopPropagation()}>
+
+                        <div className="input-wrapper">
+                            <label>Nombre de la cuenta</label>
+                            <input
+                                type="text"
+                                placeholder="Ingrese un nombre"
+                                value={accountName}
+                                onChange={(e) => setAccountName(e.target.value)}
+                            />
+                        </div>
+
+                        <select
+                            value={selectedCurrency}
+                            onChange={(e) => setSelectedCurrency(e.target.value)}
+                        >
+                            <option value="">Tipo de moneda</option>
+
+                            {currencies.map((cur) => (
+                                <option key={cur.id_currency} value={cur.id_currency}>
+                                    {cur.iso}
+                                </option>
+                            ))}
+                        </select>
+
+                        <button className="btn-primary" onClick={createAccount}>
+                            Crear
+                        </button>
+                    </div>
+                </div>
+            )}
+
         </div>
     )
 }
+
+export default Home;
