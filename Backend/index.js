@@ -3,6 +3,7 @@ const cors = require("cors");
 require('dotenv').config();
 
 const authRoutes = require('./Routes/auth.routes');
+const homeRoutes = require('./Routes/home.routes');
 
 const app = express();
 const port = 3227
@@ -21,7 +22,7 @@ app.get("/api", (req, res) =>{
 }); 
 
 app.use('/auth', authRoutes);
-
+app.use('/home', homeRoutes);
 app.listen(port, "0.0.0.0", () => {
   console.log("Servidor corriendo en http://localhost:"+port);
 });

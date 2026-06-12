@@ -1,0 +1,124 @@
+:root {
+  --bg:         #0D0F14;
+  --surface:    #151820;
+  --surface2:   #1c2030;
+  --teal:       #00C9A7;
+  --teal-dim:   rgba(0, 201, 167, 0.12);
+  --teal-glow:  rgba(0, 201, 167, 0.25);
+  --text:       #E8EAF0;
+  --muted:      #6B7280;
+  --border:     rgba(255, 255, 255, 0.06);
+  --radius:     14px;
+}
+
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  transition: transform 0.25s ease;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 20px;
+  gap: 6px;
+  height: 100%;
+}
+
+.logo {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 32px;
+  letter-spacing: -0.5px;
+}
+
+.logo span {
+  color: var(--teal);
+}
+
+.close-sidebar {
+  display: none;
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-btn {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-btn:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.sidebar-btn.active {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+.new-account-btn {
+  color: var(--teal);
+  border: 1px solid rgba(0,201,167,0.25);
+  text-align: center;
+}
+
+.new-account-btn:hover {
+  background: var(--teal-dim);
+  box-shadow: 0 0 0 3px var(--teal-dim);
+  color: var(--teal);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 240px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .close-sidebar {
+    display: block;
+  }
+}
