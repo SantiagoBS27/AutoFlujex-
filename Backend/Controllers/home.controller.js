@@ -136,6 +136,27 @@ const getProviders = (req, res) => {
     });
 };
 
+const saveEmailCredential = (req, res) => {
+    const userId = req.user.id;
+    const userEmail = req.user.email;
+    const { app_password } = req.body;
+
+    if (!app_password) {
+        return res.status(400).send("Faltan datos");
+    }
+
+    db.query(
+        `INSERT INTO email_credential (id_user, email, app_password)
+         VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE email = VALUES(email), app_password = VALUES(app_password)`,
+        [userId, userEmail, app_password],
+        (err) => {
+            if (err) return res.status(500).send("Error al guardar credencial");
+            res.send("Correo conectado correctamente");
+        }
+    );
+};
+
 const getEmails = (req, res) => {
     const userId = req.user.id;
     const sql = `
@@ -160,4 +181,4 @@ const getEmails = (req, res) => {
     });
 };
 
-module.exports = { getAccounts, getTypes, getCurrencies, createAccount, getStats, getProviders, getEmails };
+module.exports = { getAccounts, getTypes, getCurrencies, createAccount, getStats, getProviders, saveEmailCredential, getEmails };

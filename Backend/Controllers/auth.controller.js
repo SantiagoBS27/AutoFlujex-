@@ -35,7 +35,7 @@ const login = (req, res) => {
             bcrypt.compare(hash1, hash2, (err, match2) => {
                 if(match2){
                     const token = jwt.sign(
-                        { id: result[0].id_user, name: result[0].name },
+                        { id: result[0].id_user, name: result[0].name, email: result[0].email },
                         process.env.JWT_SECRET,
                         { expiresIn: '7d' }
                     );

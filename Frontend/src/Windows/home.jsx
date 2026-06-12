@@ -23,6 +23,10 @@ function Home() {
     const [selectedType, setSelectedType] = useState("");
     const [stats, setStats] = useState({ gasto_mes: 0, transacciones_mes: 0, total_providers: 0 });
 
+    const [showEmailForm, setShowEmailForm] = useState(false);
+    const [emailInput, setEmailInput] = useState("");
+    const [appPasswordInput, setAppPasswordInput] = useState("");
+
     const navigate = useNavigate();
 
     const authHeader = () => ({
@@ -66,13 +70,17 @@ function Home() {
         return payload.id;
     };
 
-    const connectGmail = () => {
-        const id_user = getUserId();
-        axios.get(`${import.meta.env.VITE_API_URL}/auth/google/url`, {
-            params: { id_user }
-        }).then(res => {
-            window.location.href = res.data.url;
-        }).catch(err => console.error(err));
+    const connectEmail = async () => {
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL}/home/connectEmail`, {
+                app_password: appPasswordInput
+            }, authHeader());
+            setShowEmailForm(false);
+            fetchEmails();
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data || "Error al conectar correo");
+        }
     };
 
     const createAccount = async () => {
@@ -200,12 +208,11 @@ function Home() {
                 {activeSection === "emails" && (
                     <>
                         <h2>Correos</h2>
-                        <p>TEST</p>
-                        <button className="btn-primary" onClick={connectGmail}>
+                        <button className="btn-primary" onClick={() => setShowEmailForm(true)}>
                             Conectar correo
                         </button>
                         <div className="emails-list">
-                            {emails.length === 0 && <p>No hay lolos registrados.</p>}
+                            {emails.length === 0 && <p>No hay correos registrados.</p>}
                             {emails.map((e) => (
                                 <div key={e.id_correo} className={`email-card ${e.id_alerta && !e.resuelta ? "alert" : ""}`}>
                                     <p className="email-subject">{e.asunto}</p>
@@ -258,9 +265,28 @@ function Home() {
                     </div>
                 </div>
             )}
+            
+            {showEmailForm && (
+                <div className="account" onClick={() => setShowEmailForm(false)}>
+                    <div className="account-form" onClick={(e) => e.stopPropagation()}>
+                        <div className="input-wrapper">
+                            <label>App Password de Gmail</label>
+                            <input
+                                type="password"
+                                placeholder="xxxx xxxx xxxx xxxx"
+                                value={appPasswordInput}
+                                onChange={(e) => setAppPasswordInput(e.target.value)}
+                            />
+                        </div>
+                        <button className="btn-primary" onClick={connectEmail}>
+                            Conectar
+                        </button>
+                    </div>
+                </div>
+            )}
 
-        </div>
-    )
-}
+                    </div>
+                )
+            }
 
 export default Home;
