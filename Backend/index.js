@@ -1,10 +1,13 @@
 const express = require("express");
 const cors = require("cors"); 
 require('dotenv').config();
+require('./daemon/cron');
 
 const authRoutes = require('./Routes/auth.routes');
 const homeRoutes = require('./Routes/home.routes');
 const accountRoutes = require('./Routes/account.routes');
+const gmailRoutes = require('./Routes/gmail.routes');
+
 
 const app = express();
 const port = 3227
@@ -25,10 +28,9 @@ app.get("/api", (req, res) =>{
 app.use('/auth', authRoutes);
 app.use('/home', homeRoutes);
 app.use('/account', accountRoutes);
+app.use('/auth/google', gmailRoutes);
 
 
 app.listen(port, "0.0.0.0", () => {
   console.log("Servidor corriendo en http://localhost:"+port);
 });
-
-

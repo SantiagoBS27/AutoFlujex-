@@ -52,8 +52,27 @@ function Home() {
 
     const fetchEmails = () => {
         axios.get(`${import.meta.env.VITE_API_URL}/home/emails`, authHeader())
-            .then(res => setEmails(res.data))
+            .then(res => {
+                console.log('emails:', res.data);
+                setEmails(res.data);
+            })
             .catch(err => console.error(err));
+    };
+
+    const getUserId = () => {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.id;
+    };
+
+    const connectGmail = () => {
+        const id_user = getUserId();
+        axios.get(`${import.meta.env.VITE_API_URL}/auth/google/url`, {
+            params: { id_user }
+        }).then(res => {
+            window.location.href = res.data.url;
+        }).catch(err => console.error(err));
     };
 
     const createAccount = async () => {
@@ -79,6 +98,8 @@ function Home() {
     useEffect(() => {
         fetchAccounts();
         fetchStats();
+        fetchProviders();
+        fetchEmails();
     }, []);
 
     useEffect(() => {
@@ -116,7 +137,7 @@ function Home() {
 
             <div className="main-content">
 
-                <h1>Hola, {name}!!</h1>
+                <h1>Hola, {name}</h1>
 
                 {activeSection === "home" && (
                     <>
@@ -161,14 +182,42 @@ function Home() {
                 {activeSection === "providers" && (
                     <>
                         <h2>Proveedores</h2>
-                        {/* lista de proveedores aquí */}
+                        <div className="providers-list">
+                            {providers.length === 0 && <p>No hay proveedores registrados.</p>}
+                            {providers.map((p) => (
+                                <div key={p.id_provider} className="provider-card">
+                                    <p className="provider-name">{p.name}</p>
+                                    <p className="provider-email">{p.email_identifier}</p>
+                                    <span className={`provider-status ${p.activo ? "active" : "inactive"}`}>
+                                        {p.activo ? "Activo" : "Inactivo"}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </>
                 )}
 
                 {activeSection === "emails" && (
                     <>
                         <h2>Correos</h2>
-                        {/* lista de correos / alertas aquí */}
+                        <p>TEST</p>
+                        <button className="btn-primary" onClick={connectGmail}>
+                            Conectar correo
+                        </button>
+                        <div className="emails-list">
+                            {emails.length === 0 && <p>No hay lolos registrados.</p>}
+                            {emails.map((e) => (
+                                <div key={e.id_correo} className={`email-card ${e.id_alerta && !e.resuelta ? "alert" : ""}`}>
+                                    <p className="email-subject">{e.asunto}</p>
+                                    <p className="email-sender">{e.remitente}</p>
+                                    <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()}</p>
+                                    {e.id_alerta && !e.resuelta && (
+                                        <span className="alert-badge">⚠ Proveedor desconocido</span>
+                                    )}
+                                    {e.proveedor && <span className="provider-badge">{e.proveedor}</span>}
+                                </div>
+                            ))}
+                        </div>
                     </>
                 )}
 

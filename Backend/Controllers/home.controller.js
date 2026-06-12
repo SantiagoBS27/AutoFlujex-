@@ -123,5 +123,41 @@ const getStats = (req, res) => {
     });
 };
 
+const getProviders = (req, res) => {
+    const userId = req.user.id;
+    const sql = `
+        SELECT id_provider, name, email_identifier, activo
+        FROM provider
+        WHERE id_user = ?
+    `;
+    db.query(sql, [userId], (err, result) => {
+        if (err) return res.status(500).send("Error");
+        res.json(result);
+    });
+};
 
-module.exports = { getAccounts, getTypes, getCurrencies, createAccount, getStats };
+const getEmails = (req, res) => {
+    const userId = req.user.id;
+    const sql = `
+        SELECT 
+            c.id_correo,
+            c.asunto,
+            c.remitente,
+            c.fecha_correo,
+            c.procesado,
+            p.name AS proveedor,
+            a.id_alerta,
+            a.resuelta
+        FROM correo c
+        LEFT JOIN provider p ON p.id_provider = c.id_provider
+        LEFT JOIN alerta a ON a.id_correo = c.id_correo
+        WHERE c.id_user = ?
+        ORDER BY c.fecha_correo DESC
+    `;
+    db.query(sql, [userId], (err, result) => {
+        if (err) return res.status(500).send("Error");
+        res.json(result);
+    });
+};
+
+module.exports = { getAccounts, getTypes, getCurrencies, createAccount, getStats, getProviders, getEmails };
