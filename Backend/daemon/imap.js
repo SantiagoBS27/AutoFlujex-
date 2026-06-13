@@ -1,6 +1,7 @@
 const { ImapFlow } = require('imapflow');
 const { simpleParser } = require('mailparser');
 const db = require('../db');
+const { parseEmail } = require('./parser');
 
 const processMailbox = async (credential) => {
   const client = new ImapFlow({
@@ -18,11 +19,13 @@ const processMailbox = async (credential) => {
   const lock = await client.getMailboxLock('INBOX');
 
   try {
-    for await (const message of client.fetch('1:*', { envelope: true, source: true })) {
+    for await (const message of client.fetch({ seen: false }, { envelope: true, source: true })) {
       const parsed = await simpleParser(message.source);
       const remitente = parsed.from?.value[0]?.address;
       const asunto = parsed.subject || '';
       const fecha = parsed.date || new Date();
+      const cuerpo = parsed.text || parsed.html || '';
+      console.log('cuerpo:', cuerpo.substring(0, 300));
 
       const [existing] = await db.promise().query(
         'SELECT id_correo FROM correo WHERE remitente = ? AND asunto = ? AND fecha_correo = ?',
@@ -38,9 +41,29 @@ const processMailbox = async (credential) => {
       const id_provider = providers.length > 0 ? providers[0].id_provider : null;
 
       const [result] = await db.promise().query(
-        'INSERT INTO correo (id_user, id_provider, asunto, remitente, fecha_correo, procesado) VALUES (?, ?, ?, ?, ?, ?)',
-        [credential.id_user, id_provider, asunto, remitente, fecha, 0]
+        'INSERT INTO correo (id_user, id_provider, asunto, remitente, fecha_correo, procesado, cuerpo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [credential.id_user, id_provider, asunto, remitente, fecha, 0, cuerpo]
       );
+
+      const parsed_data = parseEmail(remitente, cuerpo);
+      console.log('remitente:', remitente);
+    console.log('parsed_data:', parsed_data);
+    console.log('id_provider:', id_provider);
+        if (parsed_data && parsed_data.monto) {
+            await db.promise().query(
+                'UPDATE correo SET monto = ? WHERE id_correo = ?',
+                [parsed_data.monto, result.insertId]
+            );
+            if (id_provider) {
+                await db.promise().query(
+                    `UPDATE account a
+                    JOIN provider p ON p.id_account = a.id_account
+                    SET a.balance = a.balance + ?
+                    WHERE p.id_provider = ?`,
+                    [parsed_data.monto, id_provider]
+                );
+            }
+        }
 
       if (!id_provider) {
         const [tipoAlerta] = await db.promise().query(

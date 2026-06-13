@@ -83,37 +83,26 @@ const createAccount = (req, res) => {
 
 const getStats = (req, res) => {
     const userId = req.user.id;
-
     const sqlStats = `
         SELECT 
-            IFNULL(SUM(t.amount), 0) AS gasto_mes,
-            COUNT(t.id_transaction) AS transacciones_mes
-        FROM transaction t
-        JOIN account a ON a.id_account = t.id_dest_account
-        WHERE a.id_user = ?
-        AND t.id_provider IS NOT NULL
-        AND MONTH(t.date) = MONTH(CURDATE())
-        AND YEAR(t.date) = YEAR(CURDATE())
+            IFNULL(SUM(c.monto), 0) AS gasto_mes,
+            COUNT(c.id_correo) AS transacciones_mes
+        FROM correo c
+        JOIN provider p ON p.id_provider = c.id_provider
+        WHERE p.id_user = ?
+        AND c.monto IS NOT NULL
+        AND MONTH(c.fecha_correo) = MONTH(CURDATE())
+        AND YEAR(c.fecha_correo) = YEAR(CURDATE())
     `;
-
     const sqlProviders = `
         SELECT COUNT(*) AS total_providers
         FROM provider
         WHERE id_user = ?
     `;
-
     db.query(sqlStats, [userId], (err, statsResult) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).send("Error");
-        }
-
+        if (err) return res.status(500).send("Error");
         db.query(sqlProviders, [userId], (err, providerResult) => {
-            if (err) {
-                console.log(err);
-                return res.status(500).send("Error");
-            }
-
+            if (err) return res.status(500).send("Error");
             res.json({
                 gasto_mes: statsResult[0].gasto_mes,
                 transacciones_mes: statsResult[0].transacciones_mes,

@@ -75,7 +75,7 @@ function AccountInfo() {
                                 <p className="email-sender">{e.remitente}</p>
                             </div>
                             <div className="email-card-right">
-                                <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()}</p>
+                                <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()} {new Date(e.fecha_correo).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                 {e.monto && <p className="email-amount">₡{Number(e.monto).toLocaleString()}</p>}
                             </div>
                         </div>

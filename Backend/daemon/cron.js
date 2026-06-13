@@ -5,7 +5,7 @@ const { runDaemon } = require('./imap');
 runDaemon();
 
 // Ejecuta cada 5 minutos
-cron.schedule('*/5 * * * *', () => {
+cron.schedule('*/30 * * * * *', () => {
   console.log('Ejecutando daemon IMAP...');
   runDaemon();
 });

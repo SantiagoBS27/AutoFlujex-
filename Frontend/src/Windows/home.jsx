@@ -287,7 +287,7 @@ function Home() {
                                         <p className="email-sender">{e.remitente}</p>
                                     </div>
                                     <div className="email-card-right">
-                                        <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()}</p>
+                                        <p className="email-date">{new Date(e.fecha_correo).toLocaleDateString()} {new Date(e.fecha_correo).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                         {e.monto && <p className="email-amount">₡{Number(e.monto).toLocaleString()}</p>}
                                     </div>
                                 </div>
@@ -307,7 +307,7 @@ function Home() {
                                         <span className="alert-badge">⚠ Proveedor desconocido</span>
                                         <p className="email-subject">{a.asunto}</p>
                                         <p className="email-sender">{a.remitente}</p>
-                                        <p className="email-date">{new Date(a.fecha_correo).toLocaleDateString()}</p>
+                                        <p className="email-date">{new Date(a.fecha_correo).toLocaleDateString()} {new Date(a.fecha_correo).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </div>
                                     <div className="email-card-right">
                                         <button className="btn-teal-sm" onClick={() => setSelectedAlert(a)}>
@@ -381,40 +381,39 @@ function Home() {
             )}
 
             {selectedAlert && (
-                <div className="account" onClick={() => setSelectedAlert(null)}>
-                    <div className="account-form" onClick={(e) => e.stopPropagation()}>
-                        <p style={{ color: 'var(--muted)', fontSize: '0.8rem', margin: 0 }}>
-                            {selectedAlert.remitente}
-                        </p>
-                        <div className="input-wrapper">
-                            <label>Nombre del proveedor</label>
-                            <input
-                                type="text"
-                                placeholder="Ej: Netflix, Banco Nacional..."
-                                value={providerName}
-                                onChange={(e) => setProviderName(e.target.value)}
-                            />
-                        </div>
-                        <select
-                            value={selectedAccountForProvider}
-                            onChange={(e) => setSelectedAccountForProvider(e.target.value)}
-                        >
-                            <option value="">Seleccionar cuenta</option>
-                            {accounts.map((acc) => (
-                                <option key={acc.id_account} value={acc.id_account}>
-                                    {acc.account_name}
-                                </option>
-                            ))}
-                        </select>
-                        <button className="btn-primary" onClick={handleRegisterProvider}>
-                            Registrar proveedor
-                        </button>
+                            <div className="account" onClick={() => setSelectedAlert(null)}>
+                                <div className="account-form" onClick={(e) => e.stopPropagation()}>
+                                    <p style={{ color: 'var(--muted)', fontSize: '0.8rem', margin: 0 }}>
+                                        {selectedAlert.remitente}
+                                    </p>
+                                    <div className="input-wrapper">
+                                        <label>Nombre del proveedor</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej: Netflix, Banco Nacional..."
+                                            value={providerName}
+                                            onChange={(e) => setProviderName(e.target.value)}
+                                        />
+                                    </div>
+                                    <select
+                                        value={selectedAccountForProvider}
+                                        onChange={(e) => setSelectedAccountForProvider(e.target.value)}
+                                    >
+                                        <option value="">Seleccionar cuenta</option>
+                                        {accounts.map((acc) => (
+                                            <option key={acc.id_account} value={acc.id_account}>
+                                                {acc.account_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button className="btn-primary" onClick={handleRegisterProvider}>
+                                        Registrar proveedor
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                </div>
-            )}
-
-                    </div>
-                )
+                );
             }
 
 export default Home;
